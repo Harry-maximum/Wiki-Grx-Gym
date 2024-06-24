@@ -307,7 +307,7 @@ class GR1T1CfgPPO(LeggedRobotFFTAICfgPPO, GR1T1Cfg):
         experiment_name = 'GR1T1'
         num_steps_per_env = 64
 
-        run_name = ''
+        run_name = 'gr1t1'
         max_iterations = 2000
         save_interval = 100
 

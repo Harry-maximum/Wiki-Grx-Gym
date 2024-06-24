@@ -5,12 +5,27 @@ from legged_gym.envs.gr1t1.gr1t1_config import GR1T1Cfg, GR1T1CfgPPO
 
 class GR1T1LowerLimbCfg(GR1T1Cfg):
     class env(GR1T1Cfg.env):
-        num_envs = 8192  # NVIDIA 4090 has 16384 CUDA cores
-
-        num_obs = 39
-        num_pri_obs = 168
+        
+        num_envs = 16384  # NVIDIA 4090 has 16384 CUDA cores
+        frame_stack = 1
+        c_frame_stack = 3
+        num_single_obs = 39
+        num_obs = 39  ##
+        num_pri_obs = 168  ##
+        num_actions = 10  ##
+        num_observations = 39*3
+        '''
+        frame_stack = 15
+        c_frame_stack = 3
+        num_single_obs = 47
+        num_observations = int(frame_stack * num_single_obs)
+        single_num_privileged_obs = 73
+        num_privileged_obs = int(c_frame_stack * single_num_privileged_obs)
         num_actions = 10
-
+        num_envs = 4096
+        episode_length_s = 24 # episode length in seconds
+        use_ref_actions = False
+'''
     class terrain(GR1T1Cfg.terrain):
         mesh_type = 'trimesh'  # "heightfield" # none, plane, heightfield or trimesh
 
@@ -24,6 +39,26 @@ class GR1T1LowerLimbCfg(GR1T1Cfg):
         terrain_length = 10.
         terrain_width = 10.
         slope_treshold = 0.75  # slopes above this threshold will be corrected to vertical surfaces
+    
+    class init_state(GR1T1Cfg.init_state):
+        pos = [0.0, 0.0, 0.95]  # x,y,z [m]
+        default_joint_angles = {  # = target angles [rad] when action = 0.0
+            # left leg
+            'l_hip_roll': 0.0,
+            'l_hip_yaw': 0.,
+            'l_hip_pitch': -0.2618,
+            'l_knee_pitch': 0.5236,
+            'l_ankle_pitch': -0.2618,
+            'l_ankle_roll': 0.0,
+
+            # right leg
+            'r_hip_roll': -0.,
+            'r_hip_yaw': 0.,
+            'r_hip_pitch': -0.2618,
+            'r_knee_pitch': 0.5236,
+            'r_ankle_pitch': -0.2618,
+            'r_ankle_roll': 0.0,
+        }
 
     class control(GR1T1Cfg.control):
         # PD Drive parameters:
