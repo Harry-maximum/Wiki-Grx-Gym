@@ -196,5 +196,5 @@ if __name__ == '__main__':
             kds = np.array([3.7, 4.3, 11.4, 11.4, 1.53, 3.7, 4.3, 11.4, 11.4, 1.53], dtype=np.double)
             tau_limit = 114. * np.ones(10, dtype=np.double)
 
-    policy = torch.load(args.load_model)
+    policy = torch.jit.load(args.load_model)
     run_mujoco(policy, Sim2simCfg())
