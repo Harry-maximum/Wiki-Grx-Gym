@@ -194,7 +194,7 @@ if __name__ == '__main__':
         class robot_config:
             kps = np.array([37, 43, 114, 114, 15.3, 37, 43, 114, 114, 15.3], dtype=np.double)
             kds = np.array([3.7, 4.3, 11.4, 11.4, 1.53, 3.7, 4.3, 11.4, 11.4, 1.53], dtype=np.double)
-            tau_limit = 114. * np.ones(12, dtype=np.double)
+            tau_limit = 114. * np.ones(10, dtype=np.double)
 
     policy = torch.load(args.load_model)
     run_mujoco(policy, Sim2simCfg())

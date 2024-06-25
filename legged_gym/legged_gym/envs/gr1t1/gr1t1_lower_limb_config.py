@@ -8,12 +8,12 @@ class GR1T1LowerLimbCfg(GR1T1Cfg):
         
         num_envs = 16384  # NVIDIA 4090 has 16384 CUDA cores
         frame_stack = 1
-        c_frame_stack = 3
+        c_frame_stack = 1
         num_single_obs = 39
         num_obs = 39  ##
         num_pri_obs = 168  ##
         num_actions = 10  ##
-        num_observations = 39*3
+        num_observations = 39
         '''
         frame_stack = 15
         c_frame_stack = 3
