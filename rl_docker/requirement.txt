@@ -7,6 +7,8 @@ pillow
 imageio
 ninja
 
+tensorrt==8.5.3.1
+
 matplotlib
 tensorboard
 
@@ -20,6 +22,9 @@ opencv-contrib-python<4.3
 opencv-python-headless<4.3
 
 nvitop
+
+mujoco
+mujoco-python-viewer
 
 pyquaternion
 

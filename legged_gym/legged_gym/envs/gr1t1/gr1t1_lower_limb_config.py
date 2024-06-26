@@ -6,7 +6,7 @@ from legged_gym.envs.gr1t1.gr1t1_config import GR1T1Cfg, GR1T1CfgPPO
 class GR1T1LowerLimbCfg(GR1T1Cfg):
     class env(GR1T1Cfg.env):
         
-        num_envs = 16384  # NVIDIA 4090 has 16384 CUDA cores
+        num_envs = 1  # NVIDIA 4090 has 16384 CUDA cores
         frame_stack = 1
         c_frame_stack = 1
         num_single_obs = 39
@@ -150,8 +150,10 @@ class GR1T1LowerLimbCfg(GR1T1Cfg):
         ])
 
         clip_observations = 100.0
-        clip_actions_max = actions_max + 60 / 180 * numpy.pi / 3
-        clip_actions_min = actions_min - 60 / 180 * numpy.pi / 3
+        clip_actions_max = numpy.array([1.1391, 1.0491, 1.0491, 2.2691, 0.8691,
+                                        0.4391, 1.0491, 1.0491, 2.2691, 0.8691])
+        clip_actions_min = numpy.array([-0.4391, -1.0491, -2.0991, -0.4391, -1.3991,
+                                        -1.1391, -1.0491, -2.0991, -0.4391, -1.3991])
 
 
 class GR1T1LowerLimbCfgPPO(GR1T1CfgPPO, GR1T1LowerLimbCfg):

@@ -39,7 +39,14 @@ RUN apt-get update \
  git-lfs \
  libsm6 \
  xauth \
- x11-apps
+ x11-apps\
+ build-essential \
+ libsdl2-dev \
+ libsdl2-image-dev \
+ libsdl2-mixer-dev \
+ libsdl2-ttf-dev \
+ libfreetype6-dev \
+ pkg-config
 
 # change pip mirror
 RUN python -m pip install --upgrade pip \

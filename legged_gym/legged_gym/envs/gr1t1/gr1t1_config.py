@@ -106,7 +106,7 @@ class GR1T1Cfg(LeggedRobotFFTAICfg):
         }
 
         # action scale: target angle = actionScale * action + defaultAngle
-        action_scale = 1.0
+        action_scale = 1
 
         # decimation: Number of control action updates @ sim DT per policy DT
         decimation = 20

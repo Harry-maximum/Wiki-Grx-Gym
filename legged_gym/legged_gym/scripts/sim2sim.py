@@ -119,7 +119,7 @@ def run_mujoco(policy, cfg):
         q = q[-cfg.env.num_actions:]
         dq = dq[-cfg.env.num_actions:]
 
-        # 1000hz -> 100hz
+        # 1000hz -> 50hz
         if count_lowlevel % cfg.sim_config.decimation == 0:
 
             obs = np.zeros([1, cfg.env.num_single_obs], dtype=np.float32)
@@ -154,7 +154,7 @@ def run_mujoco(policy, cfg):
                 print(i)
                 policy_input[0,  i * (cfg.env.num_single_obs) : (i + 1) * (cfg.env.num_single_obs)] = hist_obs[i][0, i * (cfg.env.num_single_obs) : (i + 1) * (cfg.env.num_single_obs)]
             action[:] = policy(torch.tensor(policy_input))[0].detach().numpy()
-            action = np.clip(action, -cfg.normalization.clip_actions, cfg.normalization.clip_actions)
+            action = np.clip(action, cfg.normalization.clip_actions_min, cfg.normalization.clip_actions_max)
 
             target_q = action * cfg.control.action_scale
 
@@ -187,14 +187,18 @@ if __name__ == '__main__':
         class sim_config:
             mujoco_model_path = f'{LEGGED_GYM_ROOT_DIR}/resources/robots/fourier_intelligence_gr1t1/scene.xml'
            
-            sim_duration = 60.0
+            sim_duration = 70.0
             dt = 0.001
-            decimation = 10
+            decimation = 20
 
         class robot_config:
-            kps = np.array([37, 43, 114, 114, 15.3, 37, 43, 114, 114, 15.3], dtype=np.double)
-            kds = np.array([3.7, 4.3, 11.4, 11.4, 1.53, 3.7, 4.3, 11.4, 11.4, 1.53], dtype=np.double)
-            tau_limit = 114. * np.ones(10, dtype=np.double)
-
+            
+            kps = np.array([57, 43, 114, 114, 15.3, 
+                            57, 43, 114, 114, 15.3], dtype=np.double)  ##114
+            kds = np.array([5.7, 4.3, 11.4, 11.4, 1.53, 
+                            5.7, 4.3, 11.4, 11.4, 1.53], dtype=np.double)
+            tau_limit = np.array([60, 45, 130, 130, 16, 
+                                60, 45, 130, 130, 16], dtype=np.double)
+           
     policy = torch.jit.load(args.load_model)
     run_mujoco(policy, Sim2simCfg())
