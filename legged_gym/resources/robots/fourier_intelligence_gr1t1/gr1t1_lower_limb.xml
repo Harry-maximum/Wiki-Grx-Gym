@@ -14,7 +14,7 @@
             <joint limited='true'/>
             <motor ctrllimited='true'/>
             <default class="gr1t1">
-                <joint damping="1" armature="0.1"/>
+                
             </default>
             <default class="visual">
                 <geom type="mesh" contype="0" conaffinity="0" group="2"/>
@@ -69,37 +69,38 @@
         <light mode="targetbodycom" target="base" pos="2 0 2.5"/>
         
         <body name="base" pos="0 0 0.95" childclass="gr1t1">
-            <inertial pos="-0.0508888 0.000109183 -0.0455794" quat="1 0 0 0" mass="6.45117" diaginertia="0.0149302 0.0127972 0.00640923"/>
-            <site name='imu' size='0.05 0.05 0.02' pos='-0.0648 0 -0.1015' quat="1 0 0 0"/>
+            <inertial pos="-0.0508888 0.000109183 -0.0455794" quat="0.706855 0.707166 0.0123661 -0.0109307" mass="6.45117" diaginertia="0.0149302 0.0127972 0.00640923"/>
+            <site name='imu' size='0.05 0.05 0.02' pos='-0.0648 0 -0.1015'/>
             <freejoint/>
             
             <geom class="visual" rgba="0.752941 0.752941 0.752941 1" mesh="base" friction="0.2 0.2 0"/>
             <body name="link_left_thigh_roll" pos="-0.047999 0.105 -0.057493">
                 <inertial pos="0.04163 3.4568e-05 -0.0021382" quat="0.575529 0.581908 -0.40597 0.406619" mass="1.1437" diaginertia="0.00117548 0.00100413 0.000943892"/>
-                <joint name="joint_left_hip_roll" pos="0 0 0" axis="1 0 0" range="-0.09 0.79"/>
+                <joint name="joint_left_hip_roll" pos="0 0 0" axis="1 0 0" range="-0.09 0.79" stiffness="57" damping="5.7"/>
+                
                 <geom class="visual" rgba="0.752941 0.752941 0.752941 1" mesh="link_left_thigh_roll" friction="0.2 0.2 0"/>
                 <geom class="collision" size="0.05 0.03" pos="0 0 0" quat="0.707107 0 0.707107 0" type="capsule" rgba="0.752941 0.752941 0.752941 1" friction="0.2 0.2 0"/>
                 <!--                <geom type="mesh" rgba="0.75294 0.75294 0.75294 1" mesh="link_left_thigh_roll"/>-->
                 <body name="link_left_thigh_yaw" pos="0.048 0 -0.030499">
                     <inertial pos="0.00018348 0.046462 -0.10389" quat="0.704251 -0.0226446 -0.0453749 0.708138" mass="3.9888" diaginertia="0.0163385 0.0100158 0.00924336"/>
-                    <joint name="joint_left_hip_yaw" pos="0 0 0" axis="0 0 1" range="-0.7 0.7"/>
+                    <joint name="joint_left_hip_yaw" pos="0 0 0" axis="0 0 1" range="-0.7 0.7" stiffness="43" damping="4.3"/>
                     <geom class="visual" rgba="0.752941 0.752941 0.752941 1" mesh="link_left_thigh_yaw" friction="0.2 0.2 0"/>
                     <!--                    <geom type="mesh" rgba="0.75294 0.75294 0.75294 1" mesh="link_left_thigh_yaw"/>-->
                     <body name="link_left_thigh_pitch" pos="0 0 -0.11">
                         <inertial pos="0.0028493 -0.021688 -0.090886" quat="0.707411 -0.0125435 -0.0111264 0.706604" mass="6.369" diaginertia="0.0532352 0.0425096 0.0134363"/>
-                        <joint name="joint_left_hip_pitch" pos="0 0 0" axis="0 1 0" range="-1.75 0.7"/>
+                        <joint name="joint_left_hip_pitch" pos="0 0 0" axis="0 1 0" range="-1.75 0.7" stiffness="114" damping="11.4"/>
                         <geom class="visual" rgba="0.752941 0.752941 0.752941 1" mesh="link_left_thigh_pitch" friction="0.2 0.2 0"/>
                         <geom class="collision" size="0.05 0.125" pos="0 0 -0.15" type="capsule" rgba="0.75294 0.75294 0.75294 1" friction="0.2 0.2 0"/>
                         <!--                        <geom type="mesh" rgba="0.75294 0.75294 0.75294 1" mesh="link_left_thigh_pitch"/>-->
                         <body name="link_left_shank_pitch" pos="0 2.4606e-05 -0.36">
                             <inertial pos="0.0024312 -2.9945e-05 -0.11554" quat="0.692137 0.00134576 0.00140217 0.721764" mass="2.1895" diaginertia="0.0162703 0.016117 0.00113627"/>
-                            <joint name="joint_left_knee_pitch" pos="0 0 0" axis="0 1 0" range="-0.09 1.92"/>
+                            <joint name="joint_left_knee_pitch" pos="0 0 0" axis="0 1 0" range="-0.09 1.92" stiffness="114" damping="11.4"/>
                             <geom class="visual" rgba="0.752941 0.752941 0.752941 1" mesh="link_left_shank_pitch" friction="0.2 0.2 0"/>
                             <geom class="collision" size="0.05 0.1" pos="0 0 -0.15" type="capsule" rgba="0.75294 0.75294 0.75294 1" friction="0.2 0.2 0"/>
                             <!--                            <geom type="mesh" rgba="0.75294 0.75294 0.75294 1" mesh="link_left_shank_pitch"/>-->
                             <body name="link_left_foot_pitch" pos="0 2.3239e-05 -0.34">
                                 <inertial pos="1.748e-11 4.3804e-11 0" quat="1 3.42295e-05 -6.07362e-06 -2.07897e-10" mass="0.080335" diaginertia="5.1022e-06 4.3976e-06 4.188e-06"/>
-                                <joint name="joint_left_ankle_pitch" pos="0 0 0" axis="0 1 0" range="-1.05 0.52"/>
+                                <joint name="joint_left_ankle_pitch" pos="0 0 0" axis="0 1 0" range="-1.05 0.52" stiffness="15.3" damping="1.53"/>
                                 <geom class="visual" rgba="0.752941 0.752941 0.752941 1" mesh="link_left_foot_pitch" friction="0.2 0.2 0"/>
                                 <!--                                <geom type="mesh" rgba="0.75294 0.75294 0.75294 1" mesh="link_left_foot_pitch"/>-->
                                 <body name="link_left_foot_roll">
@@ -117,30 +118,30 @@
             </body>
             <body name="link_right_thigh_roll" pos="-0.047999 -0.105 -0.057508">
                 <inertial pos="0.0416295 3.45678e-05 -0.00213824" quat="0.57555 0.581927 -0.405942 0.406589" mass="1.14367" diaginertia="0.00117548 0.00100417 0.000943891"/>
-                <joint name="joint_right_hip_roll" pos="0 0 0" axis="1 0 0" range="-0.79 0.09"/>
+                <joint name="joint_right_hip_roll" pos="0 0 0" axis="1 0 0" range="-0.79 0.09" stiffness="57" damping="5.7"/>
                 <geom class="visual" rgba="0.752941 0.752941 0.752941 1" mesh="link_right_thigh_roll" friction="0.2 0.2 0"/>
                 <geom class="collision" size="0.05 0.03" pos="0 0 0" quat="0.707107 0 0.707107 0" type="capsule" rgba="0.752941 0.752941 0.752941 1" friction="0.2 0.2 0"/>
                 <!--                <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="link_right_thigh_roll"/>-->
                 <body name="link_right_thigh_yaw" pos="0.048 0 -0.030499">
                     <inertial pos="-0.00159762 -0.0464482 -0.103899" quat="0.709186 -0.0420808 -0.0194028 0.703497" mass="3.98882" diaginertia="0.0163388 0.0100142 0.00924469"/>
-                    <joint name="joint_right_hip_yaw" pos="0 0 0" axis="0 0 1" range="-0.7 0.7"/>
+                    <joint name="joint_right_hip_yaw" pos="0 0 0" axis="0 0 1" range="-0.7 0.7" stiffness="43" damping="4.3"/>
                     <geom class="visual" rgba="0.752941 0.752941 0.752941 1" mesh="link_right_thigh_yaw" friction="0.2 0.2 0"/>
                     <!--                    <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="link_right_thigh_yaw"/>-->
                     <body name="link_right_thigh_pitch" pos="0 0 -0.11">
                         <inertial pos="0.002842 0.0217009 -0.0919987" quat="0.706586 -0.0113774 -0.0126258 0.707423" mass="6.36895" diaginertia="0.0532349 0.0424818 0.0134641"/>
-                        <joint name="joint_right_hip_pitch" pos="0 0 0" axis="0 1 0" range="-1.75 0.7"/>
+                        <joint name="joint_right_hip_pitch" pos="0 0 0" axis="0 1 0" range="-1.75 0.7" stiffness="114" damping="11.4"/>
                         <geom class="visual" rgba="0.752941 0.752941 0.752941 1" mesh="link_right_thigh_pitch" friction="0.2 0.2 0"/>
                         <geom class="collision" size="0.05 0.125" pos="0 0 -0.15" type="capsule" rgba="0.75294 0.75294 0.75294 1" friction="0.2 0.2 0"/>
                         <!--                        <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="link_right_thigh_pitch"/>-->
                         <body name="link_right_shank_pitch" pos="0 2.4606e-05 -0.36">
                             <inertial pos="0.00236658 4.56188e-05 -0.115532" quat="0.71872 0.00154106 0.00120241 0.695296" mass="2.18947" diaginertia="0.0162708 0.0161183 0.00113536"/>
-                            <joint name="joint_right_knee_pitch" pos="0 0 0" axis="0 1 0" range="-0.09 1.92"/>
+                            <joint name="joint_right_knee_pitch" pos="0 0 0" axis="0 1 0" range="-0.09 1.92" stiffness="114" damping="11.4"/>
                             <geom class="visual" rgba="0.752941 0.752941 0.752941 1" mesh="link_right_shank_pitch" friction="0.2 0.2 0"/>
                             <geom class="collision" size="0.05 0.1" pos="0 0 -0.15" type="capsule" rgba="0.75294 0.75294 0.75294 1" friction="0.2 0.2 0"/>
                             <!--                            <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="link_right_shank_pitch"/>-->
                             <body name="link_right_foot_pitch" pos="0 2.3239e-05 -0.34">
                                 <inertial pos="1.75705e-11 4.40342e-11 0" quat="1 3.42336e-05 -6.07409e-06 -2.07938e-10" mass="0.0799219" diaginertia="5.11122e-06 4.40004e-06 4.17954e-06"/>
-                                <joint name="joint_right_ankle_pitch" pos="0 0 0" axis="0 1 0" range="-1.05 0.52"/>
+                                <joint name="joint_right_ankle_pitch" pos="0 0 0" axis="0 1 0" range="-1.05 0.52" stiffness="15.3" damping="1.53"/>
                                 <geom class="visual" rgba="0.752941 0.752941 0.752941 1" mesh="link_right_foot_pitch" friction="0.2 0.2 0"/>
                                 <!--                                <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="link_right_foot_pitch"/>-->
                                 <body name="link_right_foot_roll">
