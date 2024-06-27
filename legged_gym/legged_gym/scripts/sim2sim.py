@@ -40,9 +40,9 @@ import torch
 
 
 class cmd:
-    vx = 0
-    vy = 0
-    dyaw = 0
+    vx = 0.0
+    vy = 0.0
+    dyaw = 0.0
 
 
 def quaternion_to_euler_array(quat):
@@ -72,12 +72,12 @@ def get_obs(data):
     '''
     q = data.qpos.astype(np.double)
     dq = data.qvel.astype(np.double)
-    quat = data.sensor('orientation').data[[3, 0, 1, 2]].astype(np.double)
+    quat = data.sensor('orientation').data[[1, 2, 3, 0]].astype(np.double)
     r = R.from_quat(quat)
     v = r.apply(data.qvel[:3], inverse=True).astype(np.double)  # In the base frame
     omega = data.sensor('angular-velocity').data.astype(np.double)
     gvec = r.apply(np.array([0., 0., -1.]), inverse=True).astype(np.double)
-    return (q, dq, quat, v, omega, gvec)
+    return (q, dq, quat, v, omega, gvec,r)
 
 def pd_control(target_q, q, kp, target_dq, dq, kd):
     '''Calculates torques from position commands
@@ -114,7 +114,7 @@ def run_mujoco(policy, cfg):
     for _ in tqdm(range(int(cfg.sim_config.sim_duration / cfg.sim_config.dt)), desc="Simulating..."):
 
         # Obtain an observation
-        q, dq, quat, v, omega, gvec = get_obs(data)
+        q, dq, quat, v, omega, gvec , r= get_obs(data)
 
         q = q[-cfg.env.num_actions:]
         dq = dq[-cfg.env.num_actions:]
