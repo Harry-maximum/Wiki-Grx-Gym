@@ -40,9 +40,9 @@ import torch
 
 
 class cmd:
-    vx = 0.4
-    vy = 0.0
-    dyaw = 0.0
+    vx = 0
+    vy = 0
+    dyaw = 0
 
 
 def quaternion_to_euler_array(quat):
@@ -72,7 +72,7 @@ def get_obs(data):
     '''
     q = data.qpos.astype(np.double)
     dq = data.qvel.astype(np.double)
-    quat = data.sensor('orientation').data[[1, 2, 3, 0]].astype(np.double)
+    quat = data.sensor('orientation').data[[3, 0, 1, 2]].astype(np.double)
     r = R.from_quat(quat)
     v = r.apply(data.qvel[:3], inverse=True).astype(np.double)  # In the base frame
     omega = data.sensor('angular-velocity').data.astype(np.double)
@@ -131,15 +131,17 @@ def run_mujoco(policy, cfg):
             print(f"obs shape: {obs.shape}")
             #obs[0, 0] = math.sin(2 * math.pi * count_lowlevel * cfg.sim_config.dt  / 0.64)
             #obs[0, 1] = math.cos(2 * math.pi * count_lowlevel * cfg.sim_config.dt  / 0.64)
-            obs[0, 0] = cmd.vx * cfg.normalization.obs_scales.lin_vel
-            obs[0, 1] = cmd.vy * cfg.normalization.obs_scales.lin_vel
-            obs[0, 2] = cmd.dyaw * cfg.normalization.obs_scales.ang_vel
-            obs[0, 3:13] = q * cfg.normalization.obs_scales.dof_pos
-            obs[0, 13:23] = dq * cfg.normalization.obs_scales.dof_vel
-            obs[0, 23:33] = action
-            obs[0, 33:36] = omega
-            obs[0, 36:39] = eu_ang
+            obs[0, 0:3] = omega
+            obs[0, 3] = cmd.vx 
+            obs[0, 4] = cmd.vy 
+            obs[0, 5] = cmd.dyaw 
+            obs[0, 6:9] = eu_ang
+            obs[0, 9:19] = q * cfg.normalization.obs_scales.dof_pos
+            obs[0, 19:29] = dq * cfg.normalization.obs_scales.dof_vel
+            obs[0, 29:39] = action
+            
             print(f"obs shape: {obs.shape}")
+            print(f"obs: {obs}")
             obs = np.clip(obs, -cfg.normalization.clip_observations, cfg.normalization.clip_observations)
             print(f"obs shape: {obs.shape}")
             hist_obs.append(obs)
