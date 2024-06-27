@@ -40,9 +40,9 @@ import torch
 
 
 class cmd:
-    vx = 0.0
-    vy = 0.0
-    dyaw = 0.0
+    vx = 0
+    vy = 0
+    dyaw = 0
 
 
 def quaternion_to_euler_array(quat):
@@ -72,7 +72,7 @@ def get_obs(data):
     '''
     q = data.qpos.astype(np.double)
     dq = data.qvel.astype(np.double)
-    quat = data.sensor('orientation').data[[1, 2, 3, 0]].astype(np.double)
+    quat = data.sensor('orientation').data[[1,2,3,0]].astype(np.double)
     r = R.from_quat(quat)
     v = r.apply(data.qvel[:3], inverse=True).astype(np.double)  # In the base frame
     omega = data.sensor('angular-velocity').data.astype(np.double)
