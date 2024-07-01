@@ -40,10 +40,26 @@ import torch
 
 
 class cmd:
-    vx = 0
+    vx = 0.3
     vy = 0
     dyaw = 0
 
+def quat_rotate_inverse(quat, gvec):
+
+    quat = quat.reshape(4,1)
+    gvec = gvec.reshape(3,1)
+    
+    quat_w = quat[3, 0]
+    quat_vec = quat[:3, 0]  # Vector part
+
+    a = gvec * (2.0 * quat_w ** 2 - 1.0)
+    b = 2.0 * quat_w * np.cross(quat_vec, gvec.flatten()[:, np.newaxis], axis=0)
+    c = 2.0 * quat_vec[:, np.newaxis] * np.dot(quat_vec.T, gvec)
+    
+    # Compute the rotated vector
+    result = a - b + c
+    
+    return result.flatten()
 
 def quaternion_to_euler_array(quat):
     # Ensure quaternion is in the correct format [x, y, z, w]
@@ -119,24 +135,28 @@ def run_mujoco(policy, cfg):
         q = q[-cfg.env.num_actions:]
         dq = dq[-cfg.env.num_actions:]
 
+        default_joint_angles = np.array([cfg.init_state.default_joint_angles[key] for key in sorted(cfg.init_state.default_joint_angles.keys())])
+        default_joint_angles = default_joint_angles[-cfg.env.num_actions:]
+
         # 1000hz -> 50hz
         if count_lowlevel % cfg.sim_config.decimation == 0:
 
             obs = np.zeros([1, cfg.env.num_single_obs], dtype=np.float32)
             eu_ang = quaternion_to_euler_array(quat)
             eu_ang[eu_ang > math.pi] -= 2 * math.pi
+            quat_proj = quat_rotate_inverse(quat, gvec)
             print(f"omega shape: {omega.shape}")
             print(f"omega: {omega}")
             print(f"eu_ang shape: {eu_ang.shape}")
             print(f"obs shape: {obs.shape}")
             #obs[0, 0] = math.sin(2 * math.pi * count_lowlevel * cfg.sim_config.dt  / 0.64)
             #obs[0, 1] = math.cos(2 * math.pi * count_lowlevel * cfg.sim_config.dt  / 0.64)
-            obs[0, 0:3] = omega
-            obs[0, 3] = cmd.vx 
-            obs[0, 4] = cmd.vy 
-            obs[0, 5] = cmd.dyaw 
-            obs[0, 6:9] = eu_ang
-            obs[0, 9:19] = q * cfg.normalization.obs_scales.dof_pos
+            obs[0, 0:3] = omega / 3.14 * 180
+            obs[0, 3:6] = quat_proj
+            obs[0, 6] = cmd.vx 
+            obs[0, 7] = cmd.vy 
+            obs[0, 8] = cmd.dyaw
+            obs[0, 9:19] = (q - default_joint_angles) * cfg.normalization.obs_scales.dof_pos 
             obs[0, 19:29] = dq * cfg.normalization.obs_scales.dof_vel
             obs[0, 29:39] = action
             
@@ -152,19 +172,17 @@ def run_mujoco(policy, cfg):
 
             policy_input = np.zeros([1, cfg.env.num_observations], dtype=np.float32)
             
-            for i in range(cfg.env.frame_stack):
-                print(i)
-                policy_input[0,  i * (cfg.env.num_single_obs) : (i + 1) * (cfg.env.num_single_obs)] = hist_obs[i][0, i * (cfg.env.num_single_obs) : (i + 1) * (cfg.env.num_single_obs)]
+            policy_input[0, :cfg.env.num_single_obs] = obs[0, :cfg.env.num_single_obs]   
+                     
             action[:] = policy(torch.tensor(policy_input))[0].detach().numpy()
             action = np.clip(action, cfg.normalization.clip_actions_min, cfg.normalization.clip_actions_max)
+           
+            target_q = (action + default_joint_angles) * cfg.control.action_scale
+            target_dq = action / (model.opt.timestep * cfg.sim_config.decimation)
+            print(f"degault_joint_angle{default_joint_angles}")
 
-            target_q = action * cfg.control.action_scale
-
-
-        target_dq = np.zeros((cfg.env.num_actions), dtype=np.double)
         # Generate PD control
-        tau = pd_control(target_q, q, cfg.robot_config.kps,
-                        target_dq, dq, cfg.robot_config.kds)  # Calc torques
+        tau = (target_q-q) * cfg.robot_config.kps - dq * cfg.robot_config.kds
         tau = np.clip(tau, -cfg.robot_config.tau_limit, cfg.robot_config.tau_limit)  # Clamp torques
         data.ctrl = tau
 

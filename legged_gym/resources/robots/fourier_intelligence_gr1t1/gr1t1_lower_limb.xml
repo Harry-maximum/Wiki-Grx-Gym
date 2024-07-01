@@ -1,7 +1,7 @@
 <mujoco model="gr1t1">
     <compiler angle="radian" meshdir="assets" autolimits="true"/>
-        <option timestep='0.001' iterations='20' solver='PGS' gravity='0 0 -9.81' apirate='1000'>
-        
+        <option timestep='0.001' iterations='20' solver='PGS' gravity='0 0 -9.81' apirate='1000' density='1.2'>
+
         </option>
         <size njmax="500" nconmax="100" />
 
@@ -22,7 +22,7 @@
             <default class="collision">
                 <geom group="3" mass="0" density="0"/>
                 <default class="base_collision">
-                    <geom type="capsule" size=".014"/>
+                    <geom type="capsule" size=".001"/>
                 </default>
             </default>
             <site size="0.001" rgba="0.5 0.5 0.5 0.3" group="4"/>
@@ -67,9 +67,8 @@
 
     <worldbody>
         <light mode="targetbodycom" target="base" pos="2 0 2.5"/>
-        
         <body name="base" pos="0 0 0.95" childclass="gr1t1">
-            <inertial pos="-0.0508888 0.000109183 -0.0455794" quat="0.706855 0.707166 0.0123661 -0.0109307" mass="6.45117" diaginertia="0.0149302 0.0127972 0.00640923"/>
+            <inertial pos="-0.0508888 0.000109183 -0.0455794" quat="0.7071068 0.7071068 0 0" mass="6.45117" diaginertia="0.0149302 0.0127972 0.00640923"/>
             <site name='imu' size='0.05 0.05 0.02' pos='-0.0648 0 -0.1015'/>
             <freejoint/>
             
