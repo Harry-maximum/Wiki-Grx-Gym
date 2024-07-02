@@ -50,7 +50,7 @@ def quat_rotate_inverse(quat, gvec):
     gvec = gvec.reshape(3,1)
     
     quat_w = quat[3, 0]
-    quat_vec = quat[:3, 0]  # Vector part
+    quat_vec = quat[0:3, 0]  # Vector part
 
     a = gvec * (2.0 * quat_w ** 2 - 1.0)
     b = 2.0 * quat_w * np.cross(quat_vec, gvec.flatten()[:, np.newaxis], axis=0)
@@ -88,12 +88,12 @@ def get_obs(data):
     '''
     q = data.qpos.astype(np.double)
     dq = data.qvel.astype(np.double)
-    quat = data.sensor('orientation').data[[1,2,3,0]].astype(np.double)
+    quat = data.sensor('orientation').data.astype(np.double)
     r = R.from_quat(quat)
     v = r.apply(data.qvel[:3], inverse=True).astype(np.double)  # In the base frame
     omega = data.sensor('angular-velocity').data.astype(np.double)
-    gvec = r.apply(np.array([0., 0., -1.]), inverse=True).astype(np.double)
-    return (q, dq, quat, v, omega, gvec,r)
+    
+    return (q, dq, quat, v, omega,r)
 
 def pd_control(target_q, q, kp, target_dq, dq, kd):
     '''Calculates torques from position commands
@@ -125,18 +125,29 @@ def run_mujoco(policy, cfg):
         hist_obs.append(np.zeros([1, cfg.env.num_single_obs], dtype=np.double))
     print(f"hist_obs: {len(hist_obs)}")
     count_lowlevel = 0
-
+    gvec = np.array([0, 0, -1])
 
     for _ in tqdm(range(int(cfg.sim_config.sim_duration / cfg.sim_config.dt)), desc="Simulating..."):
 
         # Obtain an observation
-        q, dq, quat, v, omega, gvec , r= get_obs(data)
-
+        q, dq, quat, v, omega,r= get_obs(data)
+        
         q = q[-cfg.env.num_actions:]
         dq = dq[-cfg.env.num_actions:]
 
-        default_joint_angles = np.array([cfg.init_state.default_joint_angles[key] for key in sorted(cfg.init_state.default_joint_angles.keys())])
+        joint_names = ['l_hip_roll', 
+                       'l_hip_yaw', 
+                       'l_hip_pitch', 
+                       'l_knee_pitch', 
+                       'l_ankle_pitch', 
+                       'r_hip_roll', 
+                       'r_hip_yaw', 
+                       'r_hip_pitch', 
+                       'r_knee_pitch', 
+                       'r_ankle_pitch']
+        default_joint_angles = np.array([cfg.init_state.default_joint_angles[name] for name in joint_names])
         default_joint_angles = default_joint_angles[-cfg.env.num_actions:]
+
 
         # 1000hz -> 50hz
         if count_lowlevel % cfg.sim_config.decimation == 0:
@@ -151,7 +162,7 @@ def run_mujoco(policy, cfg):
             print(f"obs shape: {obs.shape}")
             #obs[0, 0] = math.sin(2 * math.pi * count_lowlevel * cfg.sim_config.dt  / 0.64)
             #obs[0, 1] = math.cos(2 * math.pi * count_lowlevel * cfg.sim_config.dt  / 0.64)
-            obs[0, 0:3] = omega / 3.14 * 180
+            obs[0, 0:3] = quat_rotate_inverse(quat,omega) 
             obs[0, 3:6] = quat_proj
             obs[0, 6] = cmd.vx 
             obs[0, 7] = cmd.vy 
@@ -169,12 +180,12 @@ def run_mujoco(policy, cfg):
             print(f"hist_obs 长度: {len(hist_obs)}")
             for i, hist in enumerate(hist_obs):
                 print(f"hist_obs[{i}] 形状: {hist.shape}")
-
+            
             policy_input = np.zeros([1, cfg.env.num_observations], dtype=np.float32)
             
             policy_input[0, :cfg.env.num_single_obs] = obs[0, :cfg.env.num_single_obs]   
-                     
-            action[:] = policy(torch.tensor(policy_input))[0].detach().numpy()
+                       
+            action[:] = policy.forward(torch.tensor(policy_input))[0].detach().numpy()
             action = np.clip(action, cfg.normalization.clip_actions_min, cfg.normalization.clip_actions_max)
            
             target_q = (action + default_joint_angles) * cfg.control.action_scale
@@ -185,6 +196,7 @@ def run_mujoco(policy, cfg):
         tau = (target_q-q) * cfg.robot_config.kps - dq * cfg.robot_config.kds
         tau = np.clip(tau, -cfg.robot_config.tau_limit, cfg.robot_config.tau_limit)  # Clamp torques
         data.ctrl = tau
+        print(f"data:{data.ctrl}")
 
         mujoco.mj_step(model, data)
         viewer.render()
